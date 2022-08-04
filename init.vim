@@ -6,6 +6,9 @@ set expandtab
 set hlsearch
 set incsearch
 set ut=150
+noremap <silent> <F3> <Esc><C-w><Up>:hide<CR>
+noremap <F4> <Esc>:vsplit<Esc><CR>
+noremap <F5> <Esc>:vertical resize -60<Esc><CR>
 set list
 set listchars=tab:ᐅ\ ,eol:¬
 nnoremap q: <nop>
