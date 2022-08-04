@@ -10,7 +10,7 @@ noremap <silent> <F3> <Esc><C-w><Up>:hide<CR>
 noremap <F4> <Esc>:vsplit<Esc><CR>
 noremap <F5> <Esc>:vertical resize -60<Esc><CR>
 set list
-set listchars=tab:ᐅ\ ,eol:¬
+set listchars=tab:»\ ,
 nnoremap q: <nop>
 nnoremap q/ <nop>
 filetype on
