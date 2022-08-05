@@ -6,11 +6,10 @@ set expandtab
 set hlsearch
 set incsearch
 set ut=150
-noremap <silent> <F3> <Esc><C-w><Up>:hide<CR>
-noremap <F4> <Esc>:vsplit<Esc><CR>
-noremap <F5> <Esc>:vertical resize -60<Esc><CR>
 set list
 set listchars=tab:»\ ,
+nnoremap <silent><F9> <Esc>:NnnExplorer<CR>
+nnoremap <silent><C-o> <Esc>:tabnew<CR><Esc>:NnnPicker<CR>
 nnoremap q: <nop>
 nnoremap q/ <nop>
 filetype on
