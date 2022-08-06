@@ -12,7 +12,6 @@ nnoremap <silent><F9> <Esc>:NnnExplorer<CR>
 nnoremap <silent><C-o> <Esc>:tabnew<CR><Esc>:NnnPicker<CR>
 nnoremap q: <nop>
 nnoremap q/ <nop>
-filetype on
 syntax on
 
 augroup C_Setting

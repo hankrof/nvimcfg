@@ -1,5 +1,6 @@
 set nocompatible              " be iMproved, required
 set rtp+=~/.config/nvim/bundle/Vundle.vim
+filetype off
 call vundle#begin('~/.config/nvim/bundle/')
 " let Vundle manage Vundle, required
 Plugin 'VundleVim/Vundle.vim'
@@ -13,6 +14,8 @@ Plugin 'ntpeters/vim-better-whitespace'
 Plugin 'airblade/vim-gitgutter'
 " file manager nnn
 Plugin 'mcchrish/nnn.vim'
+" plantuml syntax
+Plugin 'aklt/plantuml-syntax'
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
 filetype plugin indent on    " required
