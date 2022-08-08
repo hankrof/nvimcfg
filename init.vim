@@ -9,7 +9,7 @@ set ut=150
 set list
 set listchars=tab:»\ ,
 nnoremap <silent><F9> <Esc>:NnnExplorer<CR>
-nnoremap <silent><C-o> <Esc>:tabnew<CR><Esc>:NnnPicker<CR>
+nnoremap <silent><C-n> <Esc>:tabnew<CR><Esc>:NnnPicker<CR>
 nnoremap q: <nop>
 nnoremap q/ <nop>
 syntax on
