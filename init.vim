@@ -8,6 +8,9 @@ set incsearch
 set ut=150
 set list
 set listchars=tab:»\ ,
+set mouse=
+set termguicolors
+colorscheme industry
 nnoremap <silent><F9> <Esc>:NnnExplorer<CR>
 nnoremap <silent><C-n> <Esc>:tabnew<CR><Esc>:NnnPicker<CR>
 nnoremap q: <nop>
