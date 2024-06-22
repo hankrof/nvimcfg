@@ -14,6 +14,11 @@ Plugin 'ntpeters/vim-better-whitespace'
 Plugin 'airblade/vim-gitgutter'
 " file manager nnn
 Plugin 'mcchrish/nnn.vim'
+" file manager neotree
+Plugin 'nvim-neo-tree/neo-tree.nvim'
+Plugin 'nvim-lua/plenary.nvim'
+Plugin 'nvim-tree/nvim-web-devicons'
+Plugin 'MunifTanjim/nui.nvim'
 " plantuml syntax
 Plugin 'aklt/plantuml-syntax'
 " All of your Plugins must be added before the following line
