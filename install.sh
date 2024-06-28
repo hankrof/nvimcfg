@@ -54,7 +54,7 @@ function install_package {
 function install_coc_nvim {
     cd $INSTALL_PATH/bundle/coc.nvim
     npm install
-    nvim -c "CocInstall coc-clangd coc-json coc-tsserver coc-html coc-protobuf coc-cmake"
+    nvim -c "CocInstall coc-clangd coc-json coc-tsserver coc-html coc-protobuf coc-cmake coc-snippets"
     cd -
 }
 
