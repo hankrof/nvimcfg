@@ -12,6 +12,7 @@ set mouse=
 set termguicolors
 colorscheme industry
 nnoremap <silent><F9> <Esc>:NnnExplorer<CR>
+nnoremap <silent><F8> <Esc>:CocCommand document.toggleInlayHint<CR>
 nnoremap <silent><C-n> <Esc>:tabnew<CR><Esc>:NnnPicker<CR>
 nnoremap q: <nop>
 nnoremap q/ <nop>
@@ -31,6 +32,10 @@ augroup END
 
 augroup Coc_Setting
     source ~/.config/nvim/coc.vim
+augroup END
+
+augroup Rust_Setting
+    autocmd FileType rust source ~/.config/nvim/rust.vim
 augroup END
 
 augroup Bitbake
