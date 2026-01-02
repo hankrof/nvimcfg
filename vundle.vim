@@ -12,8 +12,6 @@ Plugin 'kergoth/vim-bitbake'
 Plugin 'ntpeters/vim-better-whitespace'
 " Gitgutter provides a git diff in vim
 Plugin 'airblade/vim-gitgutter'
-" file manager nnn
-Plugin 'mcchrish/nnn.vim'
 " file manager neotree
 Plugin 'nvim-neo-tree/neo-tree.nvim'
 Plugin 'nvim-lua/plenary.nvim'

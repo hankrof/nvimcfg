@@ -86,7 +86,6 @@ install_package yarn
 install_package cmake
 install_package ctags
 install_package git
-install_package nnn
 install_package clang clang clangd
 
 package_exists bear
