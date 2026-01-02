@@ -1,0 +1,41 @@
+-- vim.api.nvim_create_augroup("C_Setting", { clear = true })
+-- vim.api.nvim_create_autocmd("FileType", {
+--   group = "C_Setting",
+--   pattern = "c",
+--   command = "source $HOME/.config/nvim/extensions/c.vim",
+-- })
+-- 
+-- vim.api.nvim_create_augroup("CPP_Setting", { clear = true })
+-- vim.api.nvim_create_autocmd("FileType", {
+--   group = "CPP_Setting",
+--   pattern = "cpp",
+--   command = "source $HOME/.config/nvim/extensions/cpp.vim",
+-- })
+-- 
+-- vim.api.nvim_create_augroup("HS_Setting", { clear = true })
+-- vim.api.nvim_create_autocmd("FileType", {
+--   group = "HS_Setting",
+--   pattern = "haskell",
+--   command = "source $HOME/.config/nvim/extensions/hs.vim",
+-- })
+-- 
+-- vim.api.nvim_create_augroup("Coc_Setting", { clear = true })
+-- vim.cmd("source $HOME/.config/nvim/extensions/coc.vim")
+-- 
+-- vim.api.nvim_create_augroup("Rust_Setting", { clear = true })
+-- vim.api.nvim_create_autocmd("FileType", {
+--   group = "Rust_Setting",
+--   pattern = "rust",
+--   command = "source $HOME/.config/nvim/extensions/rust.vim",
+-- })
+-- 
+-- vim.api.nvim_create_augroup("Bitbake", { clear = true })
+-- vim.api.nvim_create_autocmd({ "BufNewFile", "BufRead" }, {
+--   group = "Bitbake",
+--   pattern = "*.bb*",
+--   command = "set filetype=bitbake",
+-- })
+-- 
+-- vim.api.nvim_create_augroup("Vundle_Setting", { clear = true })
+-- vim.cmd("source $HOME/.config/nvim/extensions/vundle.vim")
+-- 
