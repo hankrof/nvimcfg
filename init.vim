@@ -11,9 +11,8 @@ set listchars=tab:»\ ,
 set mouse=
 set termguicolors
 colorscheme industry
-nnoremap <silent><F9> <Esc>:NeoTree<CR>
+nnoremap <silent><F9> <Esc>:Neotree<CR>
 nnoremap <silent><F8> <Esc>:CocCommand document.toggleInlayHint<CR>
-nnoremap <silent><C-n> <Esc>:tabnew<CR><Esc>:NnnPicker<CR>
 nnoremap q: <nop>
 nnoremap q/ <nop>
 syntax on
