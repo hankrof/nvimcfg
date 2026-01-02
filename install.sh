@@ -1,6 +1,7 @@
 #!/bin/bash
 
 INSTALL_PATH=~/.config/nvim
+BUNDLE_PATH=$INSTALL_PATH/bundle
 
 # arg1 - package name to be checked
 function package_exists {
@@ -72,7 +73,8 @@ fi
 
 if [ $choose == "Y" ] || [ $choose == "y" ] || [ $choose == "yes" ]; then
     echo -n "Removing vim configuration files ...";
-    rm -rf $INSTALL_PATH
+    rm -rf $BUNDLE_PATH
+    rm -f $INSTALL_PATH
     echo "OK"
 fi
 
@@ -100,8 +102,7 @@ if [ "$?" == "0" ]; then
     echo "Done!"
 fi
 
-mkdir -p $INSTALL_PATH
-cp *.vim $INSTALL_PATH
+ln -sf $PWD $INSTALL_PATH
 git clone https://github.com/VundleVim/Vundle.vim.git $INSTALL_PATH/bundle/Vundle.vim
 nvim -c PluginInstall -c qa!
 install_coc_nvim
