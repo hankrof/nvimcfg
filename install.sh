@@ -1,7 +1,8 @@
 #!/bin/bash
 
 INSTALL_PATH=~/.config/nvim
-BUNDLE_PATH=~/.local/share/nvim/lazy
+MODULE_PATH=~/.local/share/nvim/lazy
+MODULE_LINK=$INSTALL_PATH/modules
 
 # arg1 - package name to be checked
 function package_exists {
@@ -74,7 +75,8 @@ if [ $choose == "Y" ] || [ $choose == "y" ] || [ $choose == "yes" ]; then
     rm -f lazy-lock.json
     rm -f package-lock.json
     rm -f $INSTALL_PATH
-    rm -rf $BUNDLE_PATH
+    rm -f $MODULE_LINK
+    rm -rf $MODULE_PATH
     sync
     echo "OK"
 fi
@@ -103,7 +105,8 @@ if [ "$?" == "0" ]; then
     echo "Done!"
 fi
 
-ln -s $PWD $INSTALL_PATH
+ln -sf $PWD $INSTALL_PATH
+ln -sf $MODULE_PATH $MODULE_LINK
 nvim --headless "+Lazy! sync" +qa
 echo "Done!"
 
