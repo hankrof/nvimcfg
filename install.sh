@@ -1,7 +1,7 @@
 #!/bin/bash
 
 INSTALL_PATH=~/.config/nvim
-BUNDLE_PATH=$INSTALL_PATH/bundle
+BUNDLE_PATH=~/.local/share/nvim/lazy
 
 # arg1 - package name to be checked
 function package_exists {
@@ -52,13 +52,10 @@ function install_package {
     fi
 }
 
-function install_coc_nvim {
-    cd $INSTALL_PATH/bundle/coc.nvim
-    npm install
-    nvim -c "CocInstall coc-clangd coc-json coc-tsserver coc-html coc-protobuf coc-cmake coc-snippets coc-rust-analyzer"
-    cd -
-}
-
+if [ $PWD == $INSTALL_PATH ]; then
+    echo "Unable to install when workdir is install path [$INSTALL_PATH]"
+    exit 1
+fi
 
 echo "Installing nvim ..."
 if  [ -d $INSTALL_PATH ]; then
@@ -73,8 +70,12 @@ fi
 
 if [ $choose == "Y" ] || [ $choose == "y" ] || [ $choose == "yes" ]; then
     echo -n "Removing vim configuration files ...";
-    rm -rf $BUNDLE_PATH
+    rm -f coc-settings.json
+    rm -f lazy-lock.json
+    rm -f package-lock.json
     rm -f $INSTALL_PATH
+    rm -rf $BUNDLE_PATH
+    sync
     echo "OK"
 fi
 
@@ -102,9 +103,7 @@ if [ "$?" == "0" ]; then
     echo "Done!"
 fi
 
-ln -sf $PWD $INSTALL_PATH
-git clone https://github.com/VundleVim/Vundle.vim.git $INSTALL_PATH/bundle/Vundle.vim
-nvim -c PluginInstall -c qa!
-install_coc_nvim
+ln -s $PWD $INSTALL_PATH
+nvim --headless "+Lazy! sync" +qa
 echo "Done!"
 

@@ -28,7 +28,7 @@ require("lazy").setup({
     {
       "neoclide/coc.nvim",
       branch = "release",
-      event = "InsertEnter",
+      event = { "VimEnter", "BufReadPre", "BufNewFile" },
       config = function()
           require("plugins.coc")
       end,

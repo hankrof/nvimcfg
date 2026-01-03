@@ -1,4 +1,15 @@
 -- https://raw.githubusercontent.com/neoclide/coc.nvim/master/doc/coc-example-config.lua
+--
+vim.g.coc_global_extensions = {
+    "coc-clangd",
+    "coc-json",
+    "coc-tsserver",
+    "coc-html",
+    "coc-protobuf",
+    "coc-cmake",
+    "coc-snippets",
+    "coc-rust-analyzer",
+}
 
 -- Some servers have issues with backup files, see #649
 vim.opt.backup = false
