@@ -8,6 +8,7 @@ vim.g.coc_global_extensions = {
     "coc-protobuf",
     "coc-cmake",
     "coc-snippets",
+    "coc-lua",
     "coc-rust-analyzer",
 }
 
