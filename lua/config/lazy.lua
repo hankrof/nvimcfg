@@ -69,6 +69,118 @@ require("lazy").setup({
       "aklt/plantuml-syntax",
       ft = { "plantuml" },
     },
+
+    -- Copilot
+    {
+      "zbirenbaum/copilot.lua",
+      cmd = "Copilot",
+      build = ":Copilot auth",
+      event = "BufReadPost",
+      opts = {
+        suggestion = {
+          enabled = not vim.g.ai_cmp,
+          auto_trigger = true,
+          hide_during_completion = vim.g.ai_cmp,
+          keymap = {
+            accept = false, -- handled by nvim-cmp / blink.cmp
+            next = "<M-]>",
+            prev = "<M-[>",
+          },
+        },
+        panel = { enabled = true },
+        filetypes = {
+          markdown = true,
+          help = true,
+        },
+      },
+      enabled = false,
+    },
+
+    {
+      "CopilotC-Nvim/CopilotChat.nvim",
+        dependencies = {
+          { "github/copilot.vim" }, -- or zbirenbaum/copilot.lua
+          { "nvim-lua/plenary.nvim", branch = "master" }, -- for curl, log and async functions
+        },
+        build = "make tiktoken", -- Only on MacOS or Linux
+        opts = {
+          -- See Configuration section for options
+          -- model = "gpt-3.1-turbo",
+        },
+        -- See Commands section for default commands if you want to lazy load on them
+        enabled = false,
+    },
+
+    --AVANTE
+    {
+        "yetone/avante.nvim",
+        -- if you want to build from source then do `make BUILD_FROM_SOURCE=true`
+        -- ⚠️ must add this setting! ! !
+        build = vim.fn.has("win32") ~= 0
+        and "powershell -ExecutionPolicy Bypass -File Build.ps1 -BuildFromSource false"
+        or "make",
+        event = "VeryLazy",
+        version = false, -- Never set this value to "*"! Never!
+        ---@module 'avante'
+        ---@type avante.Config
+        opts = {
+            -- add any opts here
+            -- this file can contain specific instructions for your project
+            instructions_file = "avante.md",
+            auto_suggestions_provider = "openai",
+            provider = "openai",
+            providers = {
+                openai = {
+                    endpoint = "https://192.168.61.12/v1/",
+                    model = "Gemma-4-26B-A4B-it-NVFP4A16",
+                    api_key = "sk-AKcQkcH565mp0pD6Y346iw",
+                    timeout = 30000, -- Timeout in milliseconds
+                    extra_request_body = {
+                        temperature = 0.75,
+                        max_tokens = 32768,
+                    },
+                },
+            },
+        },
+        dependencies = {
+            "nvim-lua/plenary.nvim",
+            "MunifTanjim/nui.nvim",
+            --- The below dependencies are optional,
+            "nvim-mini/mini.pick", -- for file_selector provider mini.pick
+            "nvim-telescope/telescope.nvim", -- for file_selector provider telescope
+            "hrsh7th/nvim-cmp", -- autocompletion for avante commands and mentions
+            "ibhagwan/fzf-lua", -- for file_selector provider fzf
+            "stevearc/dressing.nvim", -- for input provider dressing
+            "folke/snacks.nvim", -- for input provider snacks
+            "nvim-tree/nvim-web-devicons", -- or echasnovski/mini.icons
+            "zbirenbaum/copilot.lua", -- for providers='copilot'
+            {
+                -- support for image pasting
+                "HakonHarnes/img-clip.nvim",
+                event = "VeryLazy",
+                opts = {
+                    -- recommended settings
+                    default = {
+                        embed_image_as_base64 = false,
+                        prompt_for_file_name = false,
+                        drag_and_drop = {
+                            insert_mode = true,
+                        },
+                        -- required for Windows users
+                        use_absolute_path = true,
+                    },
+                },
+            },
+            {
+                -- Make sure to set this up properly if you have lazy=true
+                'MeanderingProgrammer/render-markdown.nvim',
+                opts = {
+                    file_types = { "markdown", "Avante" },
+                },
+                ft = { "markdown", "Avante" },
+            },
+        },
+    },
   },
   -- Configure any other settings here. See the documentation for more details.
   -- colorscheme that will be used when installing plugins.
