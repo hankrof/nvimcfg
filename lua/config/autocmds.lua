@@ -18,8 +18,3 @@ vim.api.nvim_create_autocmd("FileType", {
   pattern = filetypes,
   command = "Neotree filesystem reveal_force_cwd left",
 })
-
-vim.api.nvim_create_autocmd("TabNewEntered", {
-  group = guigroup,
-  command = "Neotree filesystem reveal_force_cwd left",
-})
