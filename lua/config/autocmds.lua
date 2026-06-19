@@ -11,10 +11,3 @@ vim.api.nvim_create_autocmd("FileType", {
   pattern = filetypes,
   command = "source $HOME/.config/nvim/lua/plugins/coc.lua",
 })
-
-local guigroup = vim.api.nvim_create_augroup("GUIGroup", { clear = true })
-vim.api.nvim_create_autocmd("FileType", {
-  group = guigroup,
-  pattern = filetypes,
-  command = "Neotree filesystem reveal_force_cwd left",
-})
