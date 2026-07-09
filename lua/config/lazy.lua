@@ -70,36 +70,58 @@ require("lazy").setup({
       ft = { "plantuml" },
     },
 
-    -- Copilot
+    -- GitHub Copilot
+    --
+    -- Authenticate with:
+    --   :Copilot auth
+    --
+    -- Then sign in with the GitHub account that owns the Copilot license:
+    --   getac.copilot@gmail.com
     {
       "zbirenbaum/copilot.lua",
       cmd = "Copilot",
-      build = ":Copilot auth",
-      event = "BufReadPost",
+      event = { "InsertEnter", "BufReadPost" },
       opts = {
         suggestion = {
-          enabled = not vim.g.ai_cmp,
+          enabled = true,
           auto_trigger = true,
-          hide_during_completion = vim.g.ai_cmp,
+          debounce = 75,
+          hide_during_completion = false,
           keymap = {
-            accept = false, -- handled by nvim-cmp / blink.cmp
+            accept = "<M-l>",
+            accept_word = false,
+            accept_line = false,
             next = "<M-]>",
             prev = "<M-[>",
+            dismiss = "<C-]>",
           },
         },
-        panel = { enabled = true },
+        panel = {
+          enabled = true,
+          auto_refresh = true,
+          keymap = {
+            jump_prev = "[[",
+            jump_next = "]]",
+            accept = "<CR>",
+            refresh = "gr",
+            open = "<M-CR>",
+          },
+        },
         filetypes = {
           markdown = true,
           help = true,
+          gitcommit = true,
+          yaml = true,
+          ["*"] = true,
         },
       },
-      enabled = false,
+      enabled = true,
     },
 
     {
       "CopilotC-Nvim/CopilotChat.nvim",
         dependencies = {
-          { "github/copilot.vim" }, -- or zbirenbaum/copilot.lua
+          { "zbirenbaum/copilot.lua" }, -- use the same Copilot backend as Avante
           { "nvim-lua/plenary.nvim", branch = "master" }, -- for curl, log and async functions
         },
         build = "make tiktoken", -- Only on MacOS or Linux
@@ -123,8 +145,8 @@ require("lazy").setup({
         opts = {
             instructions_file = "avante.md",
 
-            provider = "deepseek_dgx_spark",
-            auto_suggestions_provider = "deepseek_dgx_spark",
+            provider = "copilot",
+            auto_suggestions_provider = "copilot",
 
             providers = {
                 deepseek_dgx_spark = {
@@ -154,7 +176,7 @@ require("lazy").setup({
             ]],
 
             behaviour = {
-                auto_suggestions = true,
+                auto_suggestions = false,
                 auto_set_highlight_group = true,
                 auto_set_keymaps = true,
                 auto_apply_diff_after_generation = false,
