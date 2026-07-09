@@ -13,6 +13,15 @@ set.updatetime = 150
 set.list = true
 set.mouse = ""
 set.termguicolors = true
+set.fileformats = "unix"
+set.list = true
+set.listchars = {
+    tab = "→·",
+    trail = "•",
+    extends = "▶",
+    precedes = "◀",
+    nbsp = "␣",
+}
 
 cmd("set colorcolumn=120")
 cmd("colorscheme industry")
