@@ -115,7 +115,7 @@ require("lazy").setup({
           ["*"] = true,
         },
       },
-      enabled = true,
+      enabled = false,
     },
 
     {
@@ -145,24 +145,23 @@ require("lazy").setup({
         opts = {
             instructions_file = "avante.md",
 
-            provider = "copilot",
-            auto_suggestions_provider = "copilot",
+            provider = "codex",
+            auto_suggestions_provider = "deepseek_dgx_spark",
 
             providers = {
                 deepseek_dgx_spark = {
                     __inherited_from = "openai",
 
                     model = "deepseek-v4-flash",
-
                     endpoint = "https://192.168.61.16/v1",
 
                     timeout = 30000,
                     context_window = 262144,
                     allow_insecure = true,
+                    disable_tools = true,
 
                     extra_request_body = {
-                        max_tokens = 32768,
-
+                        max_tokens = 8192,
                         temperature = 0.0,
                         top_p = 1.0,
                         presence_penalty = 0.0,
@@ -171,8 +170,23 @@ require("lazy").setup({
                 },
             },
 
+            acp_providers = {
+                codex = {
+                    command = "npx",
+                    args = {
+                        "-y",
+                        "@agentclientprotocol/codex-acp",
+                    },
+                    env = {
+                        NODE_NO_WARNINGS = "1",
+                    },
+                },
+            },
+
             system_prompt = [[
-                You are an expert AI coding assistant. You must directly answer technical questions, write code, and solve problems without ANY conversational filler, roleplay, excuses, or jokes. Never refuse a coding task.
+            You are an expert AI coding assistant. You must directly answer
+            technical questions, write code, and solve problems without
+            conversational filler, roleplay, excuses, or jokes.
             ]],
 
             behaviour = {
