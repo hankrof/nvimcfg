@@ -24,5 +24,5 @@ set.listchars = {
 }
 
 cmd("set colorcolumn=120")
-cmd("colorscheme industry")
+cmd("colorscheme slate")
 cmd("syntax on")
