@@ -21,6 +21,36 @@ vim.opt.rtp:prepend(lazypath)
 vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
 
+local glm_provider_name = "GLM-5.3-Flash-NVFP4"
+local glm_system_prompt = [[
+You are GLM-5.3-Flash, served locally through vLLM and LiteLLM.
+Always respond in Traditional Chinese unless another language is requested.
+
+Think deeply before acting. Prioritize correctness and root-cause analysis over speed.
+
+For coding tasks:
+- Inspect only the context needed to understand the problem.
+- Identify the root cause before making changes.
+- Make the smallest sufficient change that solves the requested problem.
+- Preserve existing behavior, interfaces, architecture, and style unless a change is required.
+- Do not modify unrelated files.
+- Do not perform unsolicited refactoring, cleanup, dependency upgrades, formatting, documentation, or feature additions.
+- Do not create extra files, scripts, tests, or abstractions unless they are necessary for the requested task.
+- Do not fix adjacent issues unless they block the requested task.
+- Do not repeat equivalent reads, searches, or commands unless new information justifies it.
+- Use tools only when they reduce uncertainty or are required to complete or verify the task.
+- For simple tasks, avoid unnecessary exploration and testing.
+- For complex tasks, investigate enough to understand dependencies before editing.
+- If ambiguity could materially change the implementation, ask a concise question instead of guessing.
+- Verify the result with the smallest relevant check or test.
+- Do not run broad test suites when a focused test is sufficient.
+- Once the requested problem is solved and verified, stop.
+Keep the final response concise.
+State what changed, how it was verified, and any remaining issue.
+Do not narrate routine tool usage.
+Do not expose hidden reasoning or chain-of-thought.
+]]
+
 -- Setup lazy.nvim
 require("lazy").setup({
   spec = {
@@ -76,19 +106,35 @@ require("lazy").setup({
     --   :Copilot auth
     --
     -- Then sign in with the GitHub account that owns the Copilot license:
-    --   getac.copilot@gmail.com
+    --   getac.copilot4@gmail.com
     {
       "zbirenbaum/copilot.lua",
       cmd = "Copilot",
       event = { "InsertEnter", "BufReadPost" },
+
+      -- Avante's Copilot provider expects copilot.lua to be initialized.
+      -- Keep setup explicit rather than relying on Lazy.nvim's inferred main module.
+      config = function(_, opts)
+        require("copilot").setup(opts)
+      end,
+
       opts = {
+        -- Recommended by Avante for the standard GitHub Copilot endpoint.
+        server_opts_overrides = {
+          settings = {
+            ["github"] = {
+              endpoint = "https://api.githubcopilot.com",
+            },
+          },
+        },
+
         suggestion = {
           enabled = true,
           auto_trigger = true,
           debounce = 75,
           hide_during_completion = false,
           keymap = {
-            accept = "<M-l>",
+            accept = "<C-L>",
             accept_word = false,
             accept_line = false,
             next = "<M-]>",
@@ -115,7 +161,7 @@ require("lazy").setup({
           ["*"] = true,
         },
       },
-      enabled = false,
+      enabled = true,
     },
 
     {
@@ -136,6 +182,8 @@ require("lazy").setup({
     -- AVANTE
     {
         "yetone/avante.nvim",
+        branch = "main",
+
         build = "make",
         event = "VeryLazy",
         version = false,
@@ -145,52 +193,93 @@ require("lazy").setup({
         opts = {
             instructions_file = "avante.md",
 
-            provider = "codex",
-            auto_suggestions_provider = "deepseek_dgx_spark",
+            mode = "agentic",
 
+            -- Apply the requested GLM rules without changing Codex or Copilot.
+            system_prompt = function()
+                if require("avante.config").provider == glm_provider_name then
+                    return glm_system_prompt
+                end
+            end,
+
+            -- Avante's built-in Copilot provider still expects legacy JSON
+            -- credentials. Use GitHub Copilot CLI's official ACP server so
+            -- current encrypted authentication remains supported.
+            provider = "github-copilot",
+            auto_suggestions_provider = false,
             providers = {
-                deepseek_dgx_spark = {
+                [glm_provider_name] = {
                     __inherited_from = "openai",
-
-                    model = "deepseek-v4-flash",
+                    display_name = glm_provider_name,
                     endpoint = "https://192.168.61.16/v1",
-
-                    timeout = 30000,
+                    model = "glm-5.3-flash-nvfp4",
+                    api_key_name = "GLM_API_KEY",
+                    timeout = 1800000,
                     context_window = 262144,
                     allow_insecure = true,
-                    disable_tools = true,
-
+                    use_response_api = false,
                     extra_request_body = {
-                        max_tokens = 8192,
-                        temperature = 0.0,
+                        max_tokens = 65536,
+                        temperature = 1.0,
                         top_p = 1.0,
-                        presence_penalty = 0.0,
-                        frequency_penalty = 0.0,
+                        reasoning_effort = "max",
                     },
+
+                    -- Avante removes reasoning_effort for model names it does
+                    -- not recognize as reasoning models. LiteLLM expects it for
+                    -- this GLM deployment, so restore it after body generation.
+                    parse_curl_args = function(self, prompt_opts)
+                        local request = require("avante.providers.openai").parse_curl_args(self, prompt_opts)
+                        if request then
+                            request.body.reasoning_effort = "max"
+                        end
+                        return request
+                    end,
                 },
             },
-
             acp_providers = {
-                codex = {
+                ["github-copilot"] = {
                     command = "npx",
+
                     args = {
                         "-y",
-                        "@agentclientprotocol/codex-acp",
+                        "@github/copilot@1.0.80",
+                        "--acp",
+                        "--stdio",
                     },
+
+                    env = {
+                        HOME = os.getenv("HOME"),
+                        PATH = os.getenv("PATH"),
+                    },
+                },
+
+                codex = {
+                    command = "npx",
+
+                    args = {
+                        "-y",
+                        "@agentclientprotocol/codex-acp@1.1.7",
+                    },
+
+                    auth_method = "chat-gpt",
+
                     env = {
                         NODE_NO_WARNINGS = "1",
+                        HOME = os.getenv("HOME"),
+                        PATH = os.getenv("PATH"),
                     },
                 },
             },
 
-            system_prompt = [[
-            You are an expert AI coding assistant. You must directly answer
-            technical questions, write code, and solve problems without
-            conversational filler, roleplay, excuses, or jokes.
-            ]],
+            suggestion = {
+                debounce = 1000,
+                throttle = 2000,
+            },
 
             behaviour = {
                 auto_suggestions = false,
+                auto_suggestions_respect_ignore = true,
                 auto_set_highlight_group = true,
                 auto_set_keymaps = true,
                 auto_apply_diff_after_generation = false,
@@ -198,6 +287,21 @@ require("lazy").setup({
                 minimize_diff = true,
                 enable_token_counting = true,
                 auto_add_current_file = true,
+                auto_approve_tool_permissions = {
+                    "bash",
+                    "str_replace",
+                },
+                confirmation_ui_style = "inline_buttons",
+                acp_follow_agent_locations = true,
+            },
+
+            mappings = {
+                suggestion = {
+                    accept = "<M-l>",
+                    next = "<M-]>",
+                    prev = "<M-[>",
+                    dismiss = "<C-]>",
+                },
             },
         },
 
