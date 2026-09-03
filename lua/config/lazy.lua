@@ -22,6 +22,7 @@ vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
 
 local glm_provider_name = "GLM-5.3-Flash-NVFP4"
+local qwen_provider_name = "Qwen3.8-27B-NVFP4"
 local glm_system_prompt = [[
 You are GLM-5.3-Flash, served locally through vLLM and LiteLLM.
 Always respond in Traditional Chinese unless another language is requested.
@@ -49,6 +50,38 @@ Keep the final response concise.
 State what changed, how it was verified, and any remaining issue.
 Do not narrate routine tool usage.
 Do not expose hidden reasoning or chain-of-thought.
+]]
+local qwen_system_prompt = [[
+Prioritize correctness and root-cause analysis over speed.
+
+Investigation:
+- Inspect only the context needed to understand the task.
+- Identify the root cause before making changes.
+- Do not repeat equivalent reads, searches, or commands unless new information justifies it.
+- Use tools only when they reduce uncertainty or are required to complete or verify the task.
+- For simple tasks, avoid unnecessary exploration.
+- For complex tasks, investigate enough to understand dependencies before editing.
+- If ambiguity could materially change the implementation, ask a concise question instead of guessing.
+
+Changes:
+- Make the smallest sufficient change that solves the requested problem.
+- Preserve existing behavior, interfaces, architecture, and style unless a change is required.
+- Do not modify unrelated files.
+- Do not perform unsolicited refactoring, cleanup, dependency upgrades, formatting, documentation, or feature additions.
+- Do not create extra files, scripts, tests, or abstractions unless necessary.
+- Do not fix adjacent issues unless they block the requested task.
+
+Verification:
+- Verify with the smallest relevant check or test.
+- Do not run broad test suites when a focused test is sufficient.
+- Stop once the requested problem is solved and verified.
+
+Response:
+- Respond in Traditional Chinese unless another language is requested.
+- Keep the final response concise.
+- State what changed, how it was verified, and any remaining issue.
+- Do not narrate routine tool usage.
+- Do not expose hidden reasoning or chain-of-thought.
 ]]
 
 -- Setup lazy.nvim
@@ -200,6 +233,9 @@ require("lazy").setup({
                 if require("avante.config").provider == glm_provider_name then
                     return glm_system_prompt
                 end
+                if require("avante.config").provider == qwen_provider_name then
+                    return qwen_system_prompt
+                end
             end,
 
             -- Avante's built-in Copilot provider still expects legacy JSON
@@ -232,6 +268,36 @@ require("lazy").setup({
                         local request = require("avante.providers.openai").parse_curl_args(self, prompt_opts)
                         if request then
                             request.body.reasoning_effort = "max"
+                        end
+                        return request
+                    end,
+                },
+                [qwen_provider_name] = {
+                    __inherited_from = "openai",
+                    display_name = qwen_provider_name,
+                    endpoint = "https://192.168.61.12/v1",
+                    model = "qwen3.8-27b-nvfp4",
+                    api_key_name = "QWEN_API_KEY",
+                    timeout = 1800000,
+                    context_window = 262144,
+                    allow_insecure = true,
+                    use_response_api = false,
+                    extra_request_body = {
+                        max_tokens = 32768,
+                        temperature = 1.0,
+                        top_p = 0.95,
+                        reasoning_effort = "xhigh",
+                    },
+
+                    -- Preserve the gateway-specific reasoning parameter for
+                    -- this custom model name after Avante filters the body.
+                    parse_curl_args = function(self, prompt_opts)
+                        local request = require("avante.providers.openai").parse_curl_args(self, prompt_opts)
+                        if request then
+                            request.body.reasoning_effort = "xhigh"
+                            if request.body.tools and vim.tbl_isempty(request.body.tools) then
+                                request.body.tools = nil
+                            end
                         end
                         return request
                     end,
