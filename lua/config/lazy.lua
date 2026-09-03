@@ -23,6 +23,8 @@ vim.g.maplocalleader = "\\"
 
 local glm_provider_name = "GLM-5.3-Flash-NVFP4"
 local qwen_provider_name = "Qwen3.8-27B-NVFP4"
+local llm_endpoint = "https://192.168.61.12/v1"
+local llm_api_key_name = "LLM_API_KEY"
 local glm_system_prompt = [[
 You are GLM-5.3-Flash, served locally through vLLM and LiteLLM.
 Always respond in Traditional Chinese unless another language is requested.
@@ -238,18 +240,16 @@ require("lazy").setup({
                 end
             end,
 
-            -- Avante's built-in Copilot provider still expects legacy JSON
-            -- credentials. Use GitHub Copilot CLI's official ACP server so
-            -- current encrypted authentication remains supported.
-            provider = "github-copilot",
-            auto_suggestions_provider = false,
+            -- GLM handles chat/agent work; Qwen handles typing suggestions.
+            provider = glm_provider_name,
+            auto_suggestions_provider = qwen_provider_name,
             providers = {
                 [glm_provider_name] = {
                     __inherited_from = "openai",
                     display_name = glm_provider_name,
-                    endpoint = "https://192.168.61.16/v1",
+                    endpoint = llm_endpoint,
                     model = "glm-5.3-flash-nvfp4",
-                    api_key_name = "GLM_API_KEY",
+                    api_key_name = llm_api_key_name,
                     timeout = 1800000,
                     context_window = 262144,
                     allow_insecure = true,
@@ -275,15 +275,15 @@ require("lazy").setup({
                 [qwen_provider_name] = {
                     __inherited_from = "openai",
                     display_name = qwen_provider_name,
-                    endpoint = "https://192.168.61.12/v1",
+                    endpoint = llm_endpoint,
                     model = "qwen3.8-27b-nvfp4",
-                    api_key_name = "QWEN_API_KEY",
+                    api_key_name = llm_api_key_name,
                     timeout = 1800000,
                     context_window = 262144,
                     allow_insecure = true,
                     use_response_api = false,
                     extra_request_body = {
-                        max_tokens = 32768,
+                        max_tokens = 65536,
                         temperature = 1.0,
                         top_p = 0.95,
                         reasoning_effort = "xhigh",
