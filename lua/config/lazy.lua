@@ -23,6 +23,11 @@ require("lazy").setup({
       "neoclide/coc.nvim",
       branch = "release",
       event = { "VimEnter", "BufReadPre", "BufNewFile" },
+      dependencies = {
+        { "junegunn/fzf", build = "./install --bin" },
+        "junegunn/fzf.vim",
+        { "antoinemadec/coc-fzf", branch = "release" },
+      },
       config = function()
           require("plugins.coc")
       end,
@@ -207,8 +212,8 @@ Response:
                 end
             end,
 
-            provider = "GLM-5.3-Flash-NVFP4",
-            auto_suggestions_provider = "Qwen3.8-27B-NVFP4",
+            provider = "codex",
+            auto_suggestions_provider = "codex",
             providers = {
                 ["GLM-5.3-Flash-NVFP4"] = {
                     __inherited_from = "openai",
