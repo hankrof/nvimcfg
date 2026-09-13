@@ -93,6 +93,13 @@ install_package ctags
 install_package git
 install_package luarocks
 install_package clang clang clangd
+install_package curl
+
+package_exists codex
+if [ "$?" == "0" ]; then
+    echo "Codex not detected, try installing!"
+    curl -fsSL https://chatgpt.com/codex/install.sh | sh
+fi
 
 package_exists bear
 if [ "$?" == "0" ]; then
@@ -110,4 +117,3 @@ ln -sf $PWD $INSTALL_PATH
 ln -sf $MODULE_PATH $MODULE_LINK
 nvim --headless "+Lazy! sync" +qa
 echo "Done!"
-
