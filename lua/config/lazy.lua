@@ -89,8 +89,8 @@ require("lazy").setup({
           hide_during_completion = false,
           keymap = {
             accept = "<C-L>",
-            accept_word = false,
-            accept_line = false,
+            accept_word = "<M-w>",
+            accept_line = "<M-l>",
             next = "<M-]>",
             prev = "<M-[>",
             dismiss = "<C-]>",
@@ -342,6 +342,7 @@ Response:
         dependencies = {
             "nvim-lua/plenary.nvim",
             "MunifTanjim/nui.nvim",
+            { "ColinKennedy/mega.cmdparse", dependencies = { "ColinKennedy/mega.logging" } },
 
             "nvim-mini/mini.pick",
             "nvim-telescope/telescope.nvim",
@@ -377,6 +378,9 @@ Response:
         },
     }
   },
+  -- lazy.nvim also uses git.timeout for shell builds (seconds).
+  -- Avante's native Rust libraries can take longer than the default 2 minutes.
+  git = { timeout = 30 * 60 },
   install = { colorscheme = { "habamax" } },
   checker = { enabled = true, frequency = 60 * 60 * 24 * 14 },
 })
