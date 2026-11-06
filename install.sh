@@ -1,119 +1,73 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -Eeuo pipefail
 
-INSTALL_PATH=~/.config/nvim
-MODULE_PATH=~/.local/share/nvim/lazy
-MODULE_LINK=$INSTALL_PATH/modules
+repo_root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
+install_path="$HOME/.config/nvim"
+module_path="$HOME/.local/share/nvim/lazy"
+cd -- "$repo_root"
+export PATH="$HOME/.local/bin:$PATH"
 
-# arg1 - package name to be checked
-function package_exists {
-    which $1 > /dev/null 2>&1
-    if [ $? == 0 ]; then
-        return 1
+as_root() {
+    if [[ $EUID -eq 0 ]]; then
+        "$@"
     else
-        return 0
+        sudo "$@"
     fi
 }
 
-# arg1 - package name to be installed
-# arg2 - package name used in pacman
-# arg3 - package name used in apt
-function install_package {
-    pkgname=$1
-    pacman_pkgname=$2
-    apt_pkgname=$3
-    if [ -z "$pacman_pkgname" ]; then
-        pacman_pkgname=$pkgname
+if command -v pacman >/dev/null; then
+    arch_packages=(base-devel git cmake ninja python clang lld neovim nodejs npm yarn
+        ctags luarocks lua51 curl bear rust unzip python-pynvim)
+    if ! pacman -Q -- "${arch_packages[@]}" >/dev/null 2>&1; then
+        as_root pacman -Syu --needed --noconfirm "${arch_packages[@]}"
     fi
-    if [ -z "$apt_pkgname" ]; then
-        apt_pkgname=$pkgname
-    fi
-    package_exists $pkgname
-    existed=$?
-    if [ "$existed" == "1" ]; then
-        echo $pkgname "is installed"
-    fi
-    if [ "$existed" == "0" ]; then
-        echo $pkgname "not detected, try installing!"
-        package_exists pacman
-        if [ "$?" == "1" ]; then
-            echo "Detected pacman package manager!"
-            sudo pacman -Syuu $pacman_pkgname --noconfirm
-        fi
-        package_exists apt
-        if [ "$?" == "1" ]; then
-            echo "Detected apt package manager!"
-            sudo apt install $apt_pkgname
-        fi
-        package_exists $pkgname
-        if [ "$?" == "0" ]; then
-            echo $pkgname "is still not installed"
-            echo "stop ..."
-            exit 1
-        fi
-    fi
-}
-
-if [ $PWD == $INSTALL_PATH ]; then
-    echo "Unable to install when workdir is install path [$INSTALL_PATH]"
+elif command -v apt-get >/dev/null; then
+    as_root apt-get update
+    as_root apt-get install -y build-essential git cmake ninja-build python3 \
+        clang clangd lld neovim nodejs npm yarnpkg universal-ctags luarocks \
+        lua5.1 liblua5.1-0-dev curl bear cargo pkg-config libssl-dev unzip python3-pynvim
+else
+    echo 'Supported package managers: pacman and apt-get' >&2
     exit 1
 fi
 
-echo "Installing nvim ..."
-if  [ -d $INSTALL_PATH ]; then
-    echo "Found installed nvim configuration files"
-    echo -n "Do you want to clean them before installing?(Y/n)"
-    read choose
-fi
-
-if [ ${#choose} == 0 ]; then
-    choose="Y"
-fi
-
-if [ $choose == "Y" ] || [ $choose == "y" ] || [ $choose == "yes" ]; then
-    echo -n "Removing vim configuration files ...";
-    rm -f coc-settings.json
-    rm -f lazy-lock.json
-    rm -f package-lock.json
-    rm -f $INSTALL_PATH
-    rm -f $MODULE_LINK
-    rm -rf $MODULE_PATH
-    sync
-    echo "OK"
-fi
-
-if [ ! -d ~/Sources ]; then
-    mkdir -p ~/Sources
-fi
-
-install_package node nodejs node
-install_package npm
-install_package yarn
-install_package cmake
-install_package ctags
-install_package git
-install_package luarocks
-install_package clang clang clangd
-install_package curl
-
-package_exists codex
-if [ "$?" == "0" ]; then
-    echo "Codex not detected, try installing!"
+if ! command -v codex >/dev/null; then
     curl -fsSL https://chatgpt.com/codex/install.sh | sh
 fi
 
-package_exists bear
-if [ "$?" == "0" ]; then
-    echo "Bear not detected, try installing!"
-    git clone https://github.com/rizsotto/Bear.git ~/Sources/Bear
-    cd ~/Sources/Bear
-    cmake .
-    make all check
-    sudo make install
-    cd -
-    echo "Done!"
-fi
+echo 'Installing Clang/P2996 ...'
+bash "$repo_root/scripts/build-clang-p2996.sh"
 
-ln -sf $PWD $INSTALL_PATH
-ln -sf $MODULE_PATH $MODULE_LINK
-nvim --headless "+Lazy! sync" +qa
-echo "Done!"
+# Check the same server configuration Neovim will use, without relying on a
+# demo project or an existing compilation database.
+prefix=${P2996_PREFIX:-"${P2996_WORK_DIR:-$repo_root/.reflection}/install"}
+probe=$(mktemp --suffix=.cpp)
+trap 'rm -f -- "$probe"' EXIT
+printf '%s\n' '#include <meta>' 'struct Point { int x; };' \
+    'using Reflected = [: ^^Point :];' \
+    'static_assert(std::meta::identifier_of(^^Point) == "Point");' > "$probe"
+"$repo_root/scripts/clangd-reflection.sh" "--reflection-prefix=$prefix" "--check=$probe"
+
+# Preserve an existing configuration and keep plugins on repeated installation.
+mkdir -p -- "$(dirname -- "$install_path")"
+if [[ $(readlink -f -- "$install_path" 2>/dev/null || true) != "$repo_root" ]]; then
+    if [[ -e $install_path || -L $install_path ]]; then
+        backup="$install_path.backup.$(date +%Y%m%d%H%M%S).$$"
+        mv -- "$install_path" "$backup"
+        printf 'Previous Neovim configuration saved to %s\n' "$backup"
+    fi
+    ln -sfn -- "$repo_root" "$install_path"
+fi
+ln -sfn -- "$module_path" "$repo_root/modules"
+nvim --headless -n -i NONE '+Lazy! sync' +qa
+coc_extension="${XDG_CONFIG_HOME:-$HOME/.config}/coc/extensions/node_modules/coc-clangd/package.json"
+if [[ ! -f $coc_extension ]]; then
+    nvim --headless -n -i NONE \
+        "+lua require('lazy').load({plugins={'coc.nvim'}})" \
+        '+CocInstall -sync coc-clangd' +qa
+    if [[ ! -f $coc_extension ]]; then
+        echo 'coc-clangd installation failed; rerun install.sh after checking network access.' >&2
+        exit 1
+    fi
+fi
+echo 'Done! Restart Neovim to use the installed reflection toolchain.'

@@ -11,6 +11,9 @@ vim.g.coc_global_extensions = {
     "coc-rust-analyzer",
 }
 
+-- config.clang_reflection selects the installed Clang/P2996 server before CoC
+-- starts. Reflection projects still supply their own compile flags/database.
+
 -- Some servers have issues with backup files, see #649
 vim.opt.backup = false
 vim.opt.writebackup = false

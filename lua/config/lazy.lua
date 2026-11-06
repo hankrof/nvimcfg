@@ -23,6 +23,9 @@ require("lazy").setup({
       "neoclide/coc.nvim",
       branch = "release",
       event = { "VimEnter", "BufReadPre", "BufNewFile" },
+      init = function()
+          require("config.clang_reflection").setup()
+      end,
       dependencies = {
         { "junegunn/fzf", build = "./install --bin" },
         "junegunn/fzf.vim",
